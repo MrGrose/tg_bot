@@ -6,33 +6,29 @@ from pytimeparse import parse
 
 import ptbot
 
-load_dotenv()
-TG_TOKEN = getenv('TOKEN_API')
-BOT = ptbot.Bot(TG_TOKEN)
-
 
 def reply(chat_id: int, question: str) -> None:
     num = parse(question)
     if num is None:
-        BOT.send_message(
+        bot.send_message(
             chat_id,
             'Не удалось распознать время.'
             'Пожалуйста, попробуйте еще раз.',
             )
         return None
-    timer = BOT.send_message(chat_id, 'Запускаю таймер:')
-    BOT.create_countdown(
+    timer = bot.send_message(chat_id, 'Запускаю таймер:')
+    bot.create_countdown(
         num,
         notify,
         author_id=chat_id,
         message=timer,
         num=num,
     )
-    BOT.create_timer(num + 1, choose, author_id=chat_id)
+    bot.create_timer(num + 1, choose, author_id=chat_id)
 
 
 def choose(author_id: int) -> None:
-    BOT.send_message(author_id, 'Время вышло')
+    bot.send_message(author_id, 'Время вышло')
 
 
 def notify(
@@ -45,7 +41,7 @@ def notify(
     counter = num - secs_left
     progressbar = render_progressbar(total=num, iteration=counter)
     display = f'{text}\n{progressbar}'
-    BOT.update_message(author_id, message, display)
+    bot.update_message(author_id, message, display)
 
 
 def render_progressbar(
@@ -66,8 +62,12 @@ def render_progressbar(
 
 
 def main() -> None:
-    BOT.reply_on_message(reply)
-    BOT.run_bot()
+    global bot
+    load_dotenv()
+    tg_token = getenv('TOKEN_API')
+    bot = ptbot.Bot(tg_token)
+    bot.reply_on_message(reply)
+    bot.run_bot()
 
 
 if __name__ == '__main__':
